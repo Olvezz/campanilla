@@ -60,6 +60,7 @@ Reglas: es la cuenta de Olvezz y es solo para pruebas del proyecto. No guardar c
 - **App de ITLA en Play** (`edu.do.itla.app`, React Native): no maneja tareas. Solo API académica propia (`api.itla.edu.do`: notas, inscripción, plan, carnet). Descartada. No sirve para este proyecto.
 - Cuenta de Olvezz en ITLA sin cursos en curso: para probar tareas reales se usa la cuenta de una compañera, con su consentimiento y solo para pruebas.
 - `pruebas/probar_moodle.mjs` (Node, pide la clave por teclado) confirma el bloqueo desde la PC: HTTP 403 de Cloudflare en ambas plataformas.
+- **Misma prueba desde el LXC en casa (IP residencial): ITLA, portal UASD y `ciencias.uasd.edu.do` cargan el login con 200 y sin espera.** El LXC resuelve el caso que Actions no logra (Ciencias); queda como recolector principal.
 - `pruebas/prueba_actions.mjs` + workflow `prueba-cloudflare.yml` (corrida 3 nov 2026, una sola vez): un Chromium real en GitHub Actions **llegó al login de ITLA** (200) y **al portal de la UASD** (200), pero `ciencias.uasd.edu.do/login/index.php` dio **403 "Un momento…"** (Cloudflare). Segunda corrida (con espera de hasta 60 s): mismo resultado, ITLA y portal entran en 0 s y Ciencias sigue bloqueada tras 60 s, así que esperar no ayuda. El workflow ahora corre 6 veces al día (cron `17 1,5,9,13,17,21 * * *` UTC) para medir estabilidad; revisar con `gh run list --repo Olvezz/campanilla` y quitar el bloque `schedule` cuando haya datos. Falta además probar el flujo real (portal → SSO a la facultad), que puede comportarse distinto al login directo. Si ITLA se sostiene, el recolector de ITLA podría vivir en Actions; la UASD probablemente necesite el LXC (IP de casa).
 
 ## Apariencia (temas dentro del sitio)
@@ -129,7 +130,8 @@ El navegador cifra el token de Moodle con una **clave pública** antes de guarda
 
 ## Pendientes por resolver
 
-- Encender el Proxmox y crear el LXC recolector (Debian 12, ~1 GB RAM, 4 GB disco, `onboot=1`). Se trabaja desde la consola web del Proxmox en Chrome; Olvezz inicia sesión y Claude configura desde ahí. Ya existe un LXC de desarrollo (Chele usa el LXC 400 con Docker).
+- LXC recolector **creado** (3 nov 2026): CT 401 `campanilla-monitor`, Debian 12, 2 núcleos, 2 GB RAM, 1 GB swap, 8 GB en `local-zfs`, sin privilegios con `nesting=1`, IP 10.0.0.91/24 (gw 10.0.0.1, DNS 10.0.0.51 y 1.1.1.1), `onboot=1`, etiqueta `campanilla`, entra en el respaldo mensual existente. Node 22 + Playwright + Chromium en `/opt/campanilla`. Acceso de Claude: SSH con la llave `~/.ssh/claude_dev` (usuario root del host Proxmox 10.0.0.50 y del CT), autorizada por Olvezz; conviene quitarla del host cuando termine el trabajo. Ya existe un LXC de desarrollo (303 `claude-dev`, 10.0.0.57) que no se toca.
+- Siguiente en el LXC: servicio systemd + timer cada ~10 min, cifrado de credenciales, y el recolector real (login, lectura, escritura en Firestore).
 - Correr la prueba de Cloudflare en GitHub Actions (necesita el repo público creado).
 - Definir cómo obtener el detalle de tareas: token del servicio móvil (¿lo permite la UASD con su SSO?) o lectura del HTML con la sesión.
 - Resolver la facultad (Moodle) de cada materia de la UASD.
