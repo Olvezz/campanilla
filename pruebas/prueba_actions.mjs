@@ -10,7 +10,12 @@ const paginas = [
 ];
 
 mkdirSync("capturas", { recursive: true });
-const resumen = ["| Sitio | HTTP | Título | Resultado |", "|---|---|---|---|"];
+const resumen = [
+  `Corrida: ${new Date().toISOString()}`,
+  "",
+  "| Sitio | HTTP | Título | Resultado |",
+  "|---|---|---|---|",
+];
 
 const navegador = await chromium.launch({ headless: false });
 const contexto = await navegador.newContext({ locale: "es-DO" });
@@ -21,15 +26,27 @@ for (const [nombre, url] of paginas) {
   try {
     const r = await pagina.goto(url, { waitUntil: "domcontentloaded", timeout: 30000 });
     estado = r ? r.status() : estado;
-    // Si Cloudflare muestra su pantalla de espera, damos tiempo a que termine sola.
-    await pagina.waitForTimeout(15000);
   } catch (e) {
     estado = `error: ${e.message.split("\n")[0]}`;
   }
+  // La pantalla de espera de Cloudflare está hecha para resolverse sola: solo esperamos
+  // (hasta 60 s) a que el título deje de ser el de la pantalla de espera.
+  const espera = /just a moment|un momento|attention required/i;
+  const inicio = Date.now();
+  while (Date.now() - inicio < 60000) {
+    const t = await pagina.title().catch(() => "");
+    if (t && !espera.test(t)) break;
+    await pagina.waitForTimeout(2000);
+  }
+  const segundos = Math.round((Date.now() - inicio) / 1000);
   const titulo = await pagina.title().catch(() => "");
-  const bloqueada = /just a moment|un momento|attention required/i.test(titulo);
+  const bloqueada = espera.test(titulo);
   const hayCampos = (await pagina.locator("input[type=password]").count().catch(() => 0)) > 0;
-  const resultado = hayCampos ? "Llega al formulario de login" : bloqueada ? "Bloqueada por Cloudflare" : "Otro (ver captura)";
+  const resultado = hayCampos
+    ? `Llega al formulario de login (esperó ${segundos} s)`
+    : bloqueada
+      ? "Bloqueada por Cloudflare tras 60 s"
+      : `Otro (ver captura, esperó ${segundos} s)`;
   resumen.push(`| ${nombre} | ${estado} | ${titulo || "-"} | ${resultado} |`);
   await pagina.screenshot({ path: `capturas/${nombre.replace(/\s+/g, "-")}.png` });
   await pagina.close();

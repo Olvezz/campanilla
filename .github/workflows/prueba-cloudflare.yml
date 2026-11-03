@@ -3,8 +3,12 @@ name: Prueba de acceso (sin credenciales)
 # Solo comprueba si un navegador real, desde los servidores de GitHub,
 # llega a las páginas de login sin que Cloudflare pida verificación manual.
 # No usa credenciales ni intenta resolver desafíos.
+# Se repite seis veces al día (UTC) para ver si el resultado es estable.
+# Quitar el bloque `schedule` cuando ya haya suficientes datos.
 on:
   workflow_dispatch:
+  schedule:
+    - cron: "17 1,5,9,13,17,21 * * *"
 
 jobs:
   prueba:
