@@ -1,0 +1,9 @@
+node_modules/
+capturas/
+apk/
+*.env
+.env*
+*.key
+*.pem
+secretos/
+maqueta/
