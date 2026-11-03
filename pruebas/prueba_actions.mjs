@@ -48,8 +48,9 @@ for (const [nombre, url] of paginas) {
       ? "Bloqueada por Cloudflare tras 60 s"
       : `Otro (ver captura, esperó ${segundos} s)`;
   resumen.push(`| ${nombre} | ${estado} | ${titulo || "-"} | ${resultado} |`);
-  await pagina.screenshot({ path: `capturas/${nombre.replace(/\s+/g, "-")}.png` });
-  await pagina.close();
+  // La captura es solo de apoyo: si falla, no debe tumbar la prueba.
+  await pagina.screenshot({ path: `capturas/${nombre.replace(/\s+/g, "-")}.png` }).catch(() => {});
+  await pagina.close().catch(() => {});
 }
 
 await navegador.close();
