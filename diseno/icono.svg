@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Campanilla">
+  <rect width="512" height="512" rx="112" fill="#1F4FD8"/>
+  <path fill="#FFFFFF" d="M256 96c-14 0-24 10-24 22v10c-52 14-88 60-88 116v52l-32 44h288l-32-44v-52c0-56-36-102-88-116v-10c0-12-10-22-24-22z"/>
+  <path fill="#FFFFFF" d="M212 358a44 44 0 0 0 88 0z"/>
+  <circle cx="372" cy="150" r="46" fill="#FFD23F" stroke="#1F4FD8" stroke-width="16"/>
+</svg>
