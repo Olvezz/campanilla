@@ -60,7 +60,7 @@ Reglas: es la cuenta de Olvezz y es solo para pruebas del proyecto. No guardar c
 - **App de ITLA en Play** (`edu.do.itla.app`, React Native): no maneja tareas. Solo API académica propia (`api.itla.edu.do`: notas, inscripción, plan, carnet). Descartada. No sirve para este proyecto.
 - Cuenta de Olvezz en ITLA sin cursos en curso: para probar tareas reales se usa la cuenta de una compañera, con su consentimiento y solo para pruebas.
 - `pruebas/probar_moodle.mjs` (Node, pide la clave por teclado) confirma el bloqueo desde la PC: HTTP 403 de Cloudflare en ambas plataformas.
-- `pruebas/prueba_actions.mjs` + workflow `prueba-cloudflare.yml`: prueba sin credenciales de si un navegador real en GitHub Actions llega al login. Si llega, el recolector podría vivir en Actions y el LXC sería respaldo.
+- `pruebas/prueba_actions.mjs` + workflow `prueba-cloudflare.yml` (corrida 3 nov 2026, una sola vez): un Chromium real en GitHub Actions **llegó al login de ITLA** (200) y **al portal de la UASD** (200), pero `ciencias.uasd.edu.do/login/index.php` dio **403 "Un momento…"** (Cloudflare). Falta repetirla varias veces para ver si es estable, y probar el flujo real (portal → SSO a la facultad), que puede comportarse distinto al login directo. Si ITLA se sostiene, el recolector de ITLA podría vivir en Actions; la UASD probablemente necesite el LXC (IP de casa).
 
 ## Apariencia (temas dentro del sitio)
 
